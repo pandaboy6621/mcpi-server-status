@@ -19,5 +19,19 @@
         "version": "[BEIOP] ~Survival~",
         "uptime_seconds": 18000,
         "address": "beiop.net:19134"
+    },
+    {
+        "name": "beiop.net:19135",
+        "online": true,
+        "version": "[BEIOP] ~Anarchy~",
+        "uptime_seconds": 18000,
+        "address": "beiop.net:19135"
+    },
+    {
+        "name": "beiop.net:19136",
+        "online": true,
+        "version": "[BEIOP] ~Creative~",
+        "uptime_seconds": 18000,
+        "address": "beiop.net:19136"
     }
 ]
