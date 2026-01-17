@@ -1,27 +1,23 @@
 [
     {
-        "address": "mcpi.izor.in",
-        "status": "Offline",
-        "name": null
+        "name": "mcpi.izor.in",
+        "online": false,
+        "version": null,
+        "uptime_seconds": 0,
+        "address": "mcpi.izor.in"
     },
     {
-        "address": "thebrokenrail.com",
-        "status": "Online",
-        "name": "Official MCPI Server!"
+        "name": "thebrokenrail.com",
+        "online": true,
+        "version": "Official MCPI Server!",
+        "uptime_seconds": 18000,
+        "address": "thebrokenrail.com"
     },
     {
-        "address": "beiop.net:19134",
-        "status": "Online",
-        "name": "[BEIOP] ~Survival~"
-    },
-    {
-        "address": "beiop.net:19135",
-        "status": "Online",
-        "name": "[BEIOP] ~Anarchy~"
-    },
-    {
-        "address": "beiop.net:19136",
-        "status": "Online",
-        "name": "[BEIOP] ~Creative~"
+        "name": "beiop.net:19134",
+        "online": true,
+        "version": "[BEIOP] ~Survival~",
+        "uptime_seconds": 18000,
+        "address": "beiop.net:19134"
     }
 ]

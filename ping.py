@@ -43,7 +43,7 @@ def get_server_status(address_str):
     return result
 
 if __name__ == "__main__":
-    servers = ["mcpi.izor.in", "thebrokenrail.com", "beiop.net:19134"]
+    servers = ["mcpi.izor.in", "thebrokenrail.com", "beiop.net:19134", "beiop.net:19135", "beiop.net:19136"]
     all_data = [get_server_status(s) for s in servers]
     
     with open("status.json", "w") as f:
