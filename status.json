@@ -1,0 +1,27 @@
+[
+    {
+        "address": "mcpi.izor.in",
+        "status": "Offline",
+        "name": null
+    },
+    {
+        "address": "thebrokenrail.com",
+        "status": "Online",
+        "name": "Official MCPI Server!"
+    },
+    {
+        "address": "beiop.net:19134",
+        "status": "Online",
+        "name": "[BEIOP] ~Survival~"
+    },
+    {
+        "address": "beiop.net:19135",
+        "status": "Online",
+        "name": "[BEIOP] ~Anarchy~"
+    },
+    {
+        "address": "beiop.net:19136",
+        "status": "Online",
+        "name": "[BEIOP] ~Creative~"
+    }
+]
