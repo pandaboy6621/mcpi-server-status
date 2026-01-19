@@ -50,11 +50,11 @@ HTML_LAYOUT = """
         .details{font-size:13px; color:var(--muted); margin-bottom:12px; line-height:1.4}
         .details b{color:#cbd5e1}
 
-        .hb-grid{display:flex; gap:2px; margin-top:10px; height:14px}
-        .hb-seg{flex:1; height:100%; border-radius:1px; transition: transform 0.2s}
+        .hb-grid{display:flex; gap:1px; margin-top:10px; height:12px; width:100%;}
+        .hb-seg{flex:1; height:100%; border-radius:1px; transition: transform 0.2s; min-width:1px;}
         .hb-seg:hover{transform: scaleY(1.3); z-index:10}
         .hb-seg.up{background: var(--gradient-up);}
-        .hb-seg.down{background: var(--gradient-down);}
+        .hb-seg.down{background: rgba(255,255,255,0.08);}
         
         .footer-meta{display:flex; justify-content:space-between; margin-top:12px; font-size:11px; color:var(--muted); border-top:1px solid rgba(255,255,255,0.05); padding-top:8px}
     </style>
@@ -95,7 +95,8 @@ HTML_LAYOUT = """
 
                 let html = '<div class="grid">';
                 servers.forEach(s => {
-                    const buckets = historyMap[s.address] || [];
+                    // Default to 96 zeros if no history data available
+                    const buckets = historyMap[s.address] || new Array(96).fill(0);
                     let hbHtml = '';
                     buckets.forEach(val => {
                         hbHtml += `<span class="hb-seg ${val === 1 ? 'up' : 'down'}" title="${val === 1 ? 'Online' : 'Offline'}"></span>`;
@@ -148,11 +149,11 @@ def status_json():
 def history_json():
     now_ms = int(time.time() * 1000)
     since_ms = now_ms - (24 * 3600 * 1000)
-    rows = db.fetch_history_since(since_ms) #
+    rows = db.fetch_history_since(since_ms)
 
-    buckets_count = 288 
-    bucket_ms = 5 * 60 * 1000
-    history_map = { (s["address"] if isinstance(s, dict) else s): [0] * buckets_count for s in ping.SERVERS } #
+    buckets_count = 96 
+    bucket_ms = 15 * 60 * 1000
+    history_map = { (s["address"] if isinstance(s, dict) else s): [0] * buckets_count for s in ping.SERVERS }
 
     for r in rows:
         addr = r.get('address')
