@@ -25,7 +25,7 @@ HTML_LAYOUT = """
         
         @font-face {
             font-family: 'Mojangles'; 
-            src: url('/static/fonts/molangles.ttf') format('truetype'); 
+            src: url('/static/fonts/mojangles.ttf') format('truetype'); 
             font-weight: normal; font-style: normal; font-display: swap;
         }
 
