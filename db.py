@@ -2,7 +2,13 @@ import sqlite3
 import os
 
 
-def init_db(db_path='status.db'):
+DB_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'status.db')
+
+
+def init_db(db_path=None):
+    """Initialize DB at absolute path. If db_path is None, use project-local DB_PATH."""
+    if db_path is None:
+        db_path = DB_PATH
     dirpath = os.path.dirname(db_path)
     if dirpath and not os.path.exists(dirpath):
         os.makedirs(dirpath, exist_ok=True)
@@ -15,7 +21,7 @@ def init_db(db_path='status.db'):
         name TEXT,
         version TEXT,
         online INTEGER,
-        uptime_seconds REAL,
+        uptime_seconds REAL, 
         last_seen INTEGER,
         recorded_at INTEGER
     )
@@ -24,8 +30,10 @@ def init_db(db_path='status.db'):
     conn.close()
 
 
-def log_history(entries, recorded_at, db_path='status.db'):
+def log_history(entries, recorded_at, db_path=None):
     """Append a row per server to the history table."""
+    if db_path is None:
+        db_path = DB_PATH
     init_db(db_path)
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
@@ -46,11 +54,13 @@ def log_history(entries, recorded_at, db_path='status.db'):
     conn.close()
 
 
-def fetch_history_since(since_ms, db_path='status.db'):
+def fetch_history_since(since_ms, db_path=None):
     """Return list of history rows since `since_ms` (ms epoch).
 
     Each row is a dict: {address, online, recorded_at}.
     """
+    if db_path is None:
+        db_path = DB_PATH
     if not os.path.exists(db_path):
         return []
     conn = sqlite3.connect(db_path)

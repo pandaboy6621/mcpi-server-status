@@ -9,10 +9,10 @@ import db
 # Default server list used when none provided to run_ping
 SERVERS = [
     {"address": "mcpi.izor.in", "name": None, "version": None},
-    {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus on Reborn 3.0.0"},
-    {"address": "beiop.net:19134", "name": "Beiop Reborn 2.5.4", "version": "Beiop Reborn 2.5.4"},
-    {"address": "beiop.net:19135", "name": "Beiop Reborn 2.5.4", "version": "Beiop Reborn 2.5.4"},
-    {"address": "beiop.net:19136", "name": "Beiop Reborn 2.5.4", "version": "Beiop Reborn 2.5.4"},
+    {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus 3.0.0"},
+    {"address": "beiop.net:19134", "name": "2.5.4", "version": "2.5.4"},
+    {"address": "beiop.net:19135", "name": "2.5.4", "version": "2.5.4"},
+    {"address": "beiop.net:19136", "name": "2.5.4", "version": "2.5.4"},
 ]
 
 # GLOBAL COOLDOWN TRACKING
@@ -138,7 +138,8 @@ def run_ping(servers=None, status_path="status.json"):
 
     # Log to real SQLite database via db.py
     try:
-        db.log_history(all_data, now_ms, db_path="status.db")
+        # use db module default path (absolute inside project) to avoid multiple DB files
+        db.log_history(all_data, now_ms)
     except Exception:
         pass
 
