@@ -73,6 +73,16 @@ HTML_LAYOUT = """
             return (h? h+'h ':'') + (m? m+'m ':'') + sec+'s';
         }
 
+        function timeAgo(ms){
+            if (!ms) return 'NEVER';
+            const diff = Math.floor((Date.now() - ms) / 1000);
+            if (diff < 60) return diff + 's ago';
+            if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+            if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+            const d = new Date(ms);
+            return d.toLocaleString();
+        }
+
         async function refresh(){
             try {
                 const [statusRes, historyRes] = await Promise.all([
@@ -90,6 +100,8 @@ HTML_LAYOUT = """
                     buckets.forEach(val => {
                         hbHtml += `<span class="hb-seg ${val === 1 ? 'up' : 'down'}" title="${val === 1 ? 'Online' : 'Offline'}"></span>`;
                     });
+                    const upCount = buckets.reduce((acc, v) => acc + (v === 1 ? 1 : 0), 0);
+                    const uptimePct = buckets.length ? Math.round((upCount / buckets.length) * 100) : 0;
 
                     html += `
                         <div class="card">
@@ -105,8 +117,8 @@ HTML_LAYOUT = """
                             </div>
                             <div class="hb-grid">${hbHtml}</div>
                             <div class="footer-meta">
-                                <span>24H HEARTBEAT</span>
-                                <span>${s.online ? 'UPTIME: ' + sToHms(s.uptime_seconds) : 'LAST SEEN: ' + new Date(s.last_seen).toLocaleTimeString()}</span>
+                                <span>24H HEARTBEAT (${uptimePct}%)</span>
+                                <span>${s.online ? 'UPTIME: ' + sToHms(s.uptime_seconds) : 'LAST SEEN: ' + timeAgo(s.last_seen)}</span>
                             </div>
                         </div>`;
                 });
@@ -152,4 +164,5 @@ def history_json():
     return jsonify([{'address': k, 'buckets': v} for k, v in history_map.items()])
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5555)
+    # Disable the reloader so only one process writes the DB/file.
+    app.run(debug=True, port=5555, use_reloader=False)

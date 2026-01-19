@@ -11,32 +11,32 @@
         "name": "Official MCPI Server!",
         "online": true,
         "version": "TBR Cerberus 3.0.0",
-        "uptime_seconds": 44824.24799999999,
+        "uptime_seconds": 45944.13299999999,
         "address": "thebrokenrail.com",
-        "last_seen": 1768849252137
+        "last_seen": 1768850372022
     },
     {
         "name": "[BEIOP] ~Survival~",
         "online": true,
         "version": "2.5.4",
-        "uptime_seconds": 44494.249999999985,
+        "uptime_seconds": 45084.537999999986,
         "address": "beiop.net:19134",
-        "last_seen": 1768849252137
+        "last_seen": 1768850372022
     },
     {
         "name": "[BEIOP] ~Anarchy~",
         "online": true,
         "version": "2.5.4",
-        "uptime_seconds": 44659.24899999998,
+        "uptime_seconds": 45249.53699999998,
         "address": "beiop.net:19135",
-        "last_seen": 1768849252137
+        "last_seen": 1768850372022
     },
     {
         "name": "[BEIOP] ~Creative~",
         "online": true,
         "version": "2.5.4",
-        "uptime_seconds": 44449.24899999999,
+        "uptime_seconds": 45069.53899999999,
         "address": "beiop.net:19136",
-        "last_seen": 1768849252137
+        "last_seen": 1768850372022
     }
 ]
