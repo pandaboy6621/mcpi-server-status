@@ -1,50 +1,159 @@
-import socket, struct, time, random, json
+import socket
+import struct
+import time
+import random
+import json
+import os
+import db
+
+# Default server list used when none provided to run_ping
+SERVERS = [
+    {"address": "mcpi.izor.in", "name": None, "version": None},
+    {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus on Reborn 3.0.0"},
+    {"address": "beiop.net:19134", "name": "Beiop Reborn 2.5.4", "version": "Beiop Reborn 2.5.4"},
+    {"address": "beiop.net:19135", "name": "Beiop Reborn 2.5.4", "version": "Beiop Reborn 2.5.4"},
+    {"address": "beiop.net:19136", "name": "Beiop Reborn 2.5.4", "version": "Beiop Reborn 2.5.4"},
+]
+
+# GLOBAL COOLDOWN TRACKING
+# Prevents database duplication and excessive network traffic
+LAST_RUN_TIME = 0
 
 def get_server_status(address_str):
     timeout = 5
-    # Default structure for the JSON output
     result = {
         "name": address_str,
-        "online": False, 
-        "version": None, 
-        "uptime_seconds": 0, # Note: Actual uptime tracking requires a database
-        "address": address_str
+        "online": False,
+        "version": None,
+        "uptime_seconds": 0,
+        "address": address_str,
     }
-    
+
+    sock = None
     try:
         if ":" in address_str:
-            target = (address_str.split(":")[0], int(address_str.split(":")[1]))
+            host, port = address_str.split(":", 1)
+            target = (host, int(port))
         else:
             target = (address_str, 19132)
 
-        magic = b'\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x124Vx'
-        packet = b'\x02' + struct.pack(">q", random.randint(5, 20)) + magic
+        magic = b"\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x124Vx"
+        packet = b"\x02" + struct.pack(">q", random.randint(5, 20)) + magic
 
         sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
         sock.settimeout(timeout)
         sock.sendto(packet, target)
-        
+
         data = sock.recvfrom(2048)[0]
-        # MCPI status usually looks like: MCCP;[protocol];[version];[motd];...
-        decoded = data[35:].decode('utf-8', errors='ignore').split(';')
-        
+
+        server_name = None
+        proto_or_version = None
+        try:
+            if len(data) > 34:
+                len_val = data[34]
+                info_bytes = data[35:35 + len_val]
+                info_str = info_bytes.decode("utf-8", errors="ignore")
+                parts = info_str.split(";")
+                if len(parts) > 2:
+                    server_name = parts[2]
+                if len(parts) > 1:
+                    proto_or_version = parts[1]
+        except Exception:
+            server_name = None
+            proto_or_version = None
+
         result["online"] = True
-        result["version"] = decoded[2] if len(decoded) > 2 else "Unknown"
-        result["name"] = decoded[3] if len(decoded) > 3 else address_str
-        # Simulating uptime for the progress bar (e.g., 5 hours)
-        result["uptime_seconds"] = 18000 
-        
+        result["version"] = proto_or_version if proto_or_version else result.get("version")
+        result["name"] = server_name if server_name else address_str
+
     except Exception:
-        pass # result remains "online": False
+        pass
     finally:
-        try: sock.close()
-        except: pass
-            
+        if sock:
+            try:
+                sock.close()
+            except:
+                pass
+
     return result
 
-if __name__ == "__main__":
-    servers = ["mcpi.izor.in", "thebrokenrail.com", "beiop.net:19134", "beiop.net:19135", "beiop.net:19136"]
-    all_data = [get_server_status(s) for s in servers]
+
+def run_ping(servers=None, status_path="status.json"):
+    """
+    Runs status checks and writes results to JSON and SQLite.
+    Includes a 30-second cooldown to prevent file/DB duplication.
+    """
+    global LAST_RUN_TIME
+    now_ms = int(time.time() * 1000)
     
-    with open("status.json", "w") as f:
-        json.dump(all_data, f, indent=4)
+    # Check cooldown: only run if it's been more than 30 seconds since the last run
+    if now_ms - LAST_RUN_TIME < 30000:
+        return 
+
+    LAST_RUN_TIME = now_ms
+    if servers is None:
+        servers = SERVERS
+
+    prev = {}
+    if os.path.exists(status_path):
+        try:
+            with open(status_path, "r") as f:
+                prev_list = json.load(f)
+            for e in prev_list:
+                prev[e.get("address") or e.get("name")] = e
+        except Exception:
+            prev = {}
+
+    all_data = []
+
+    for entry in servers:
+        if isinstance(entry, dict):
+            addr = entry.get("address")
+            static_version = entry.get("version")
+        else:
+            addr = entry
+            static_version = None
+
+        res = get_server_status(addr)
+        res["address"] = addr
+
+        key = res.get("address") or res.get("name") or addr
+        prev_entry = prev.get(key, {})
+
+        if res.get("online"):
+            if prev_entry.get("online") and prev_entry.get("last_seen"):
+                delta = (now_ms - int(prev_entry.get("last_seen"))) / 1000.0
+                res["uptime_seconds"] = float(prev_entry.get("uptime_seconds", 0)) + delta
+            else:
+                res["uptime_seconds"] = float(prev_entry.get("uptime_seconds", 0))
+            res["last_seen"] = now_ms
+        else:
+            res["last_seen"] = prev_entry.get("last_seen")
+            res["uptime_seconds"] = float(prev_entry.get("uptime_seconds", 0))
+
+        if static_version is not None:
+            res["version"] = static_version
+
+        all_data.append(res)
+
+    # Log to real SQLite database via db.py
+    try:
+        db.log_history(all_data, now_ms, db_path="status.db")
+    except Exception:
+        pass
+
+    # Update status.json atomicly
+    try:
+        tmp_path = status_path + ".tmp"
+        with open(tmp_path, "w") as f:
+            json.dump(all_data, f, indent=4)
+        os.replace(tmp_path, status_path)
+    except Exception:
+        try:
+            with open(status_path, "w") as f:
+                json.dump(all_data, f, indent=4)
+        except:
+            pass
+
+if __name__ == "__main__":
+    run_ping()

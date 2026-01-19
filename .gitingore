@@ -1,3 +1,5 @@
 .venv
 .vscode
 status.json
+_pycache_
+status.db
