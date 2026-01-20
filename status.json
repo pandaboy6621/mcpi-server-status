@@ -1,11 +1,11 @@
 [
     {
-        "name": "thebrokenrail.com",
-        "online": false,
+        "name": "Official MCPI Server!",
+        "online": true,
         "version": "TBR Cerberus 3.0.0",
-        "uptime_seconds": 126883.48600000038,
+        "uptime_seconds": 127405.11900000041,
         "address": "thebrokenrail.com",
-        "last_seen": 1768933927642
+        "last_seen": 1768935172397
     },
     {
         "name": "mcpi.izor.in",
@@ -17,34 +17,34 @@
     },
     {
         "name": "PBPT? Season 10",
-        "online": true,
-        "version": "Unkwnown",
-        "uptime_seconds": 486.415,
+        "online": false,
+        "version": "Unknown",
+        "uptime_seconds": 1402.8229999999999,
         "address": "pbpt.dog",
-        "last_seen": 1768934211838
+        "last_seen": 1768935128246
     },
     {
-        "name": "beiop.net:19134",
+        "name": "[BEIOP] ~Survival~",
         "online": false,
         "version": "2.5.4",
-        "uptime_seconds": 125070.45200000037,
+        "uptime_seconds": 125356.78600000039,
         "address": "beiop.net:19134",
-        "last_seen": 1768933409209
+        "last_seen": 1768935093628
     },
     {
-        "name": "beiop.net:19135",
+        "name": "[BEIOP] ~Anarchy~",
         "online": false,
         "version": "2.5.4",
-        "uptime_seconds": 125233.41300000036,
+        "uptime_seconds": 125519.74700000038,
         "address": "beiop.net:19135",
-        "last_seen": 1768933409209
+        "last_seen": 1768935093628
     },
     {
-        "name": "beiop.net:19136",
+        "name": "[BEIOP] ~Creative~",
         "online": false,
         "version": "2.5.4",
-        "uptime_seconds": 125265.45200000037,
+        "uptime_seconds": 125551.78600000039,
         "address": "beiop.net:19136",
-        "last_seen": 1768933409209
+        "last_seen": 1768935093628
     }
 ]

@@ -112,15 +112,24 @@ def run_ping(servers=None, status_path="status.json"):
         if isinstance(entry, dict):
             addr = entry.get("address")
             static_version = entry.get("version")
+            static_name = entry.get("name")
         else:
             addr = entry
             static_version = None
+            static_name = None
 
         res = get_server_status(addr)
         res["address"] = addr
 
-        key = res.get("address") or res.get("name") or addr
+        key = addr
         prev_entry = prev.get(key, {})
+
+        # Persist name if offline or if current ping didn't return a name
+        if res.get("name") == addr:
+            if prev_entry.get("name") and prev_entry.get("name") != addr:
+                res["name"] = prev_entry["name"]
+            elif static_name:
+                res["name"] = static_name
 
         if res.get("online"):
             if prev_entry.get("online") and prev_entry.get("last_seen"):
