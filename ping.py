@@ -8,11 +8,13 @@ import db
 
 # Default server list used when none provided to run_ping
 SERVERS = [
-    {"address": "mcpi.izor.in", "name": None, "version": None},
     {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus 3.0.0"},
+    {"address": "mcpi.izor.in", "name": None, "version": None},
+    {"address": "pbpt.dog", "name": None, "version": "Unknown"},
     {"address": "beiop.net:19134", "name": "2.5.4", "version": "2.5.4"},
     {"address": "beiop.net:19135", "name": "2.5.4", "version": "2.5.4"},
     {"address": "beiop.net:19136", "name": "2.5.4", "version": "2.5.4"},
+
 ]
 
 # GLOBAL COOLDOWN TRACKING
