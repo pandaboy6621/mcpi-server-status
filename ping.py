@@ -5,16 +5,16 @@ import random
 import json
 import os
 import db
+import re
 
 # Default server list used when none provided to run_ping
 SERVERS = [
-    {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus 3.0.0"},
-    {"address": "mcpi.izor.in", "name": None, "version": None},
-    {"address": "pbpt.dog", "name": None, "version": "Unknown"},
-    {"address": "beiop.net:19134", "name": "2.5.4", "version": "2.5.4"},
-    {"address": "beiop.net:19135", "name": "2.5.4", "version": "2.5.4"},
-    {"address": "beiop.net:19136", "name": "2.5.4", "version": "2.5.4"},
-
+    {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus 3.0.0", "show_link": True},
+    {"address": "mcpi.izor.in", "name": None, "version": "2.5.3", "show_link": True},
+    {"address": "pbpt.dog", "name": None, "version": "Unknown", "show_link": False},
+    {"address": "beiop.net:19134", "name": "2.5.4", "version": "2.5.4", "show_link": False},
+    {"address": "beiop.net:19135", "name": "2.5.4", "version": "2.5.4", "show_link": False},
+    {"address": "beiop.net:19136", "name": "2.5.4", "version": "2.5.4", "show_link": False},
 ]
 
 # GLOBAL COOLDOWN TRACKING
@@ -29,6 +29,7 @@ def get_server_status(address_str):
         "version": None,
         "uptime_seconds": 0,
         "address": address_str,
+        "players": None,
     }
 
     sock = None
@@ -50,6 +51,7 @@ def get_server_status(address_str):
 
         server_name = None
         proto_or_version = None
+        player_count = None
         try:
             if len(data) > 34:
                 len_val = data[34]
@@ -60,13 +62,24 @@ def get_server_status(address_str):
                     server_name = parts[2]
                 if len(parts) > 1:
                     proto_or_version = parts[1]
+                if len(parts) > 4:
+                    player_count = parts[4]
         except Exception:
             server_name = None
             proto_or_version = None
+            player_count = None
 
         result["online"] = True
         result["version"] = proto_or_version if proto_or_version else result.get("version")
         result["name"] = server_name if server_name else address_str
+        result["players"] = player_count
+
+        # Special handling for mcpi.izor.in
+        if result["address"] == "mcpi.izor.in" or (result["name"] and "mcpi.izor.in" in result["name"]):
+            match = re.search(r"(\d+)\s+connected players", result["name"] or "")
+            if match:
+                result["players"] = match.group(1)
+            result["name"] = "mcpi.izor.in"
 
     except Exception:
         pass
@@ -113,13 +126,16 @@ def run_ping(servers=None, status_path="status.json"):
             addr = entry.get("address")
             static_version = entry.get("version")
             static_name = entry.get("name")
+            show_link = entry.get("show_link", False)
         else:
             addr = entry
             static_version = None
             static_name = None
+            show_link = False
 
         res = get_server_status(addr)
         res["address"] = addr
+        res["show_link"] = show_link
 
         key = addr
         prev_entry = prev.get(key, {})
@@ -144,6 +160,10 @@ def run_ping(servers=None, status_path="status.json"):
 
         if static_version is not None:
             res["version"] = static_version
+
+        # Final cleanup for specific servers
+        if res.get("address") == "mcpi.izor.in":
+            res["name"] = "mcpi.izor.in"
 
         all_data.append(res)
 

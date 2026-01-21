@@ -3,25 +3,31 @@
         "name": "Official MCPI Server!",
         "online": true,
         "version": "TBR Cerberus 3.0.0",
-        "uptime_seconds": 127405.11900000041,
+        "uptime_seconds": 216499.4880000004,
         "address": "thebrokenrail.com",
-        "last_seen": 1768935172397
+        "players": null,
+        "show_link": true,
+        "last_seen": 1769024266766
     },
     {
         "name": "mcpi.izor.in",
-        "online": false,
-        "version": null,
-        "uptime_seconds": 0.0,
+        "online": true,
+        "version": "2.5.3",
+        "uptime_seconds": 2655.4610000000002,
         "address": "mcpi.izor.in",
-        "last_seen": null
+        "players": "0",
+        "show_link": true,
+        "last_seen": 1769024266766
     },
     {
         "name": "PBPT? Season 10",
-        "online": false,
+        "online": true,
         "version": "Unknown",
-        "uptime_seconds": 1402.8229999999999,
+        "uptime_seconds": 3842.9199999999996,
         "address": "pbpt.dog",
-        "last_seen": 1768935128246
+        "players": null,
+        "show_link": false,
+        "last_seen": 1769024266766
     },
     {
         "name": "[BEIOP] ~Survival~",
@@ -29,15 +35,19 @@
         "version": "2.5.4",
         "uptime_seconds": 125356.78600000039,
         "address": "beiop.net:19134",
+        "players": null,
+        "show_link": false,
         "last_seen": 1768935093628
     },
     {
-        "name": "[BEIOP] ~Anarchy~",
-        "online": false,
+        "name": "Beiop Sports Creative Build",
+        "online": true,
         "version": "2.5.4",
-        "uptime_seconds": 125519.74700000038,
+        "uptime_seconds": 128175.20800000036,
         "address": "beiop.net:19135",
-        "last_seen": 1768935093628
+        "players": null,
+        "show_link": false,
+        "last_seen": 1769024266766
     },
     {
         "name": "[BEIOP] ~Creative~",
@@ -45,6 +55,8 @@
         "version": "2.5.4",
         "uptime_seconds": 125551.78600000039,
         "address": "beiop.net:19136",
+        "players": null,
+        "show_link": false,
         "last_seen": 1768935093628
     }
 ]
