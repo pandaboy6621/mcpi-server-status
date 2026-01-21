@@ -282,4 +282,4 @@ def history_json():
 
 if __name__ == "__main__":
     # Disable the reloader so only one process writes the DB/file.
-    app.run(debug=True, port=5555, use_reloader=False)
+    app.run(host='0.0.0.0', debug=True, port=5555, use_reloader=False)
