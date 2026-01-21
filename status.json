@@ -3,31 +3,31 @@
         "name": "Official MCPI Server!",
         "online": true,
         "version": "TBR Cerberus 3.0.0",
-        "uptime_seconds": 216499.4880000004,
+        "uptime_seconds": 220394.4460000004,
         "address": "thebrokenrail.com",
         "players": null,
         "show_link": true,
-        "last_seen": 1769024266766
+        "last_seen": 1769028281724
     },
     {
         "name": "mcpi.izor.in",
-        "online": true,
+        "online": false,
         "version": "2.5.3",
-        "uptime_seconds": 2655.4610000000002,
+        "uptime_seconds": 4980.609000000001,
         "address": "mcpi.izor.in",
-        "players": "0",
+        "players": null,
         "show_link": true,
-        "last_seen": 1769024266766
+        "last_seen": 1769027597324
     },
     {
         "name": "PBPT? Season 10",
         "online": true,
         "version": "Unknown",
-        "uptime_seconds": 3842.9199999999996,
+        "uptime_seconds": 7857.878000000002,
         "address": "pbpt.dog",
         "players": null,
         "show_link": false,
-        "last_seen": 1769024266766
+        "last_seen": 1769028281724
     },
     {
         "name": "[BEIOP] ~Survival~",
@@ -43,11 +43,11 @@
         "name": "Beiop Sports Creative Build",
         "online": true,
         "version": "2.5.4",
-        "uptime_seconds": 128175.20800000036,
+        "uptime_seconds": 132070.19000000035,
         "address": "beiop.net:19135",
         "players": null,
         "show_link": false,
-        "last_seen": 1769024266766
+        "last_seen": 1769028281724
     },
     {
         "name": "[BEIOP] ~Creative~",
