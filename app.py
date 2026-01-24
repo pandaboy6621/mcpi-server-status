@@ -251,7 +251,6 @@ def index():
 
 @app.route('/status.json')
 def status_json():
-    ping.run_ping() 
     if os.path.exists("status.json"):
         mtime = os.path.getmtime("status.json")
         with open("status.json", "r") as f:

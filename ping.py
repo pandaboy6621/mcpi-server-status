@@ -7,6 +7,16 @@ import os
 import db
 import re
 
+
+def _run_loop(status_path="status.json", interval=15.0):
+    """Run `run_ping` continuously every `interval` seconds until stopped."""
+    try:
+        while True:
+            run_ping(status_path=status_path)
+            time.sleep(interval)
+    except KeyboardInterrupt:
+        return
+
 # Default server list used when none provided to run_ping
 SERVERS = [
     {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus 3.0.0", "show_link": True},
@@ -188,4 +198,15 @@ def run_ping(servers=None, status_path="status.json"):
             pass
 
 if __name__ == "__main__":
-    run_ping()
+    import argparse
+
+    parser = argparse.ArgumentParser(description="MCPI status pinger")
+    parser.add_argument("--loop", action="store_true", help="Run continuously on an interval")
+    parser.add_argument("--interval", type=float, default=15.0, help="Seconds between runs when --loop is used")
+    parser.add_argument("--status-path", default="status.json", help="Path to write status JSON to")
+    args = parser.parse_args()
+
+    if args.loop:
+        _run_loop(status_path=args.status_path, interval=args.interval)
+    else:
+        run_ping(status_path=args.status_path)
