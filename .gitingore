@@ -1,4 +1,3 @@
-.venv
 .vscode
 status.json
 __pycache__

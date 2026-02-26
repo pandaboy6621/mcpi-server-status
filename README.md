@@ -5,6 +5,8 @@ a basic webpage that monitors the status of mcpi edition minecraft servers
 
 - Create and activate a virtualenv, then install dependencies from `requirements.txt`.
 - Start the web app with `python app.py`.
+ - Activate the repository virtualenv `.venv`, then (if needed) install dependencies from `requirements.txt`.
+ - Start the web app with `python app.py`.
 
 ## Running the background status checker
 
@@ -12,14 +14,13 @@ The ping/checker must run continuously and independently from the web server. Us
 
 ## Setup (macOS / Linux)
 
-1. Create and activate a Python virtual environment in the project root:
+1. Activate the bundled Python virtual environment in the project root:
 
 ```bash
-python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-2. Install dependencies:
+2. (Optional) Install dependencies if they're not already present in the bundled environment:
 
 ```bash
 pip install -r requirements.txt
@@ -87,8 +88,7 @@ rm -rf mcpi-server-status
 git clone --branch main <repo_url>
 cd mcpi-server-status
 
-# create/activate venv and install deps
-python3 -m venv .venv
+# activate the repo-provided virtualenv and install deps if needed
 source .venv/bin/activate
 pip install -r requirements.txt
 
