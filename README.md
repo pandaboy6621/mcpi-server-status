@@ -10,9 +10,6 @@ a basic webpage that monitors the status of mcpi edition minecraft servers
 
 The ping/checker must run continuously and independently from the web server. Use the `ping.py` script in loop mode to write `status.json` and log history to the database:
 
-# mcpi-server-status
-a basic webpage that monitors the status of mcpi edition minecraft servers
-
 ## Setup (macOS / Linux)
 
 1. Create and activate a Python virtual environment in the project root:
