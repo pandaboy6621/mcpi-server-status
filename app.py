@@ -257,8 +257,14 @@ def status_json():
     if os.path.exists("status.json"):
         mtime = os.path.getmtime("status.json")
         with open("status.json", "r") as f:
+            servers = json.load(f)
+            try:
+                # Place online servers first, then offline
+                servers = sorted(servers, key=lambda s: not s.get('online', False))
+            except Exception:
+                pass
             return jsonify({
-                "servers": json.load(f),
+                "servers": servers,
                 "last_updated": int(mtime * 1000)
             })
     return jsonify({"servers": [], "last_updated": 0})
