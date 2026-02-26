@@ -1,33 +1,33 @@
 [
     {
         "name": "Official MCPI Server!",
-        "online": true,
+        "online": false,
         "version": "TBR Cerberus 3.0.0",
-        "uptime_seconds": 489225.6030000004,
+        "uptime_seconds": 1460624.9900000005,
         "address": "thebrokenrail.com",
         "players": null,
         "show_link": true,
-        "last_seen": 1769297112881
+        "last_seen": 1770268512268
     },
     {
         "name": "mcpi.izor.in",
-        "online": false,
+        "online": true,
         "version": "2.5.3",
-        "uptime_seconds": 7220.645,
+        "uptime_seconds": 1819918.746,
         "address": "mcpi.izor.in",
-        "players": null,
+        "players": "1",
         "show_link": true,
-        "last_seen": 1769030657360
+        "last_seen": 1772081210369
     },
     {
         "name": "PBPT? Season 10",
-        "online": true,
+        "online": false,
         "version": "Unknown",
-        "uptime_seconds": 276689.03500000003,
+        "uptime_seconds": 1248088.422,
         "address": "pbpt.dog",
         "players": null,
         "show_link": false,
-        "last_seen": 1769297112881
+        "last_seen": 1770268512268
     },
     {
         "name": "[BEIOP] ~Survival~",
@@ -43,11 +43,11 @@
         "name": "Beiop Sports Creative Build",
         "online": true,
         "version": "2.5.4",
-        "uptime_seconds": 400901.34700000036,
+        "uptime_seconds": 3184998.8349999995,
         "address": "beiop.net:19135",
         "players": null,
         "show_link": false,
-        "last_seen": 1769297112881
+        "last_seen": 1772081210369
     },
     {
         "name": "[BEIOP] ~Creative~",
@@ -58,5 +58,16 @@
         "players": null,
         "show_link": false,
         "last_seen": 1768935093628
+    },
+    {
+        "name": "Unofficial MCPI Reborn Survival (v3.0.0)",
+        "online": true,
+        "version": "Reborn v3.0.0",
+        "uptime_seconds": 1093.192,
+        "address": "unofficial-mcpi-rb.duckdns.org",
+        "players": null,
+        "show_link": true,
+        "last_seen": 1772081210369,
+        "website": "https://theunknownhack3r.nekoweb.org/mcpi_reborn_server/index.html"
     }
 ]

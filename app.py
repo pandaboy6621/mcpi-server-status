@@ -83,6 +83,9 @@ HTML_LAYOUT = """
             font-size: 14px;
             opacity: 0.8;
         }
+
+        .site-link{margin-top:6px;display:inline-flex;gap:6px;align-items:center}
+        .site-link a{color:inherit;text-decoration:none}
         
         #last-updated {
             text-align: left;
@@ -208,7 +211,7 @@ HTML_LAYOUT = """
                             </div>
                             ${s.players !== undefined && s.players !== null ? `<div class="subtitle">${s.players} online</div>` : ''}
                             <div class="details">
-                                <div>Address: <b>${s.show_link ? `<a href="http://${s.address}" target="_blank" class="address-link">${s.address} <span class="mdi mdi-open-in-new"></span></a>` : s.address}</b></div>
+                                <div>Address: <b>${s.website ? `<a href="${s.website}" target="_blank" class="address-link">${s.address} <span class="mdi mdi-open-in-new"></span></a>` : (s.show_link ? `<a href="http://${s.address}" target="_blank" class="address-link">${s.address} <span class="mdi mdi-open-in-new"></span></a>` : s.address)}</b></div>
                                 <div>Version: <b>${s.version || 'Unknown'}</b></div>
                             </div>
                             <div class="hb-grid">${hbHtml}</div>

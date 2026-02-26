@@ -25,6 +25,7 @@ SERVERS = [
     {"address": "beiop.net:19134", "name": "2.5.4", "version": "2.5.4", "show_link": False},
     {"address": "beiop.net:19135", "name": "2.5.4", "version": "2.5.4", "show_link": False},
     {"address": "beiop.net:19136", "name": "2.5.4", "version": "2.5.4", "show_link": False},
+    {"address": "unofficial-mcpi-rb.duckdns.org", "name": "Unofficial MCPI Reborn Survival (v3.0.0)", "version": "Reborn v3.0.0", "show_link": True, "website": "https://theunknownhack3r.nekoweb.org/mcpi_reborn_server/index.html"},
 ]
 
 # GLOBAL COOLDOWN TRACKING
@@ -136,11 +137,13 @@ def run_ping(servers=None, status_path="status.json"):
             addr = entry.get("address")
             static_version = entry.get("version")
             static_name = entry.get("name")
+            static_website = entry.get("website")
             show_link = entry.get("show_link", False)
         else:
             addr = entry
             static_version = None
             static_name = None
+            static_website = None
             show_link = False
 
         res = get_server_status(addr)
@@ -170,6 +173,9 @@ def run_ping(servers=None, status_path="status.json"):
 
         if static_version is not None:
             res["version"] = static_version
+
+        if static_website is not None:
+            res["website"] = static_website
 
         # Final cleanup for specific servers
         if res.get("address") == "mcpi.izor.in":
