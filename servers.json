@@ -1,0 +1,37 @@
+[
+    {
+        "address": "thebrokenrail.com",
+        "name": "Official MCPI Server!",
+        "version": "TBR Cerberus 3.0.0",
+        "show_link": true
+    },
+    {
+        "address": "mcpi.izor.in",
+        "name": "mcpi.izor.in",
+        "lock_name": true,
+        "version": "2.5.3",
+        "show_link": true
+    },
+    {
+        "address": "pbpt.dog",
+        "version": "Unknown"
+    },
+    {
+        "address": "beiop.net:19134",
+        "version": "2.5.4"
+    },
+    {
+        "address": "beiop.net:19135",
+        "version": "2.5.4"
+    },
+    {
+        "address": "beiop.net:19136",
+        "version": "2.5.4"
+    },
+    {
+        "address": "unofficial-mcpi-rb.duckdns.org",
+        "name": "Unofficial MCPI Reborn Survival (v3.0.0)",
+        "version": "Reborn v3.0.0",
+        "website": "https://theunknownhack3r.nekoweb.org/mcpi_reborn_server/index.html"
+    }
+]

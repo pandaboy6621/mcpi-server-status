@@ -1,6 +1,0 @@
-.vscode
-.venv
-status.json
-__pycache__
-.DS_Store
-status.db

@@ -1,218 +1,181 @@
+"""Ping MCPI (RakNet) servers and record their status.
+
+Run once:        python ping.py
+Run forever:     python ping.py --loop
+(app.py runs this loop for you in a background thread, so you normally don't need to.)
+"""
+import argparse
+import json
+import os
+import random
+import re
 import socket
 import struct
 import time
-import random
-import json
-import os
+from concurrent.futures import ThreadPoolExecutor
+
+import config
 import db
-import re
+
+DEFAULT_PORT = 19132
+RAKNET_MAGIC = b"\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x12\x34\x56\x78"
+UNCONNECTED_PING_OPEN = 0x02
+UNCONNECTED_PONG = 0x1C
+PLAYERS_RE = re.compile(r"\s*[-|(]?\s*(\d+)\s+connected players\)?", re.IGNORECASE)
 
 
-def _run_loop(status_path="status.json", interval=15.0):
-    """Run `run_ping` continuously every `interval` seconds until stopped."""
+def split_address(address):
+    if ":" in address:
+        host, port = address.rsplit(":", 1)
+        return host, int(port)
+    return address, DEFAULT_PORT
+
+
+def parse_pong(data):
+    """Return the server info string ("MCCPP;Demo;Name") from an unconnected pong, or None."""
+    # id(1) + time(8) + guid(8) + magic(16) + strlen(2) + string
+    if len(data) < 35 or data[0] != UNCONNECTED_PONG:
+        return None
+    (length,) = struct.unpack_from(">H", data, 33)
+    return data[35:35 + length].decode("utf-8", errors="replace")
+
+
+def get_server_status(address, timeout=None):
+    """Ping one server. Returns {online, name, players} (name/players may be None)."""
+    timeout = timeout or config.PING_TIMEOUT
+    result = {"online": False, "name": None, "players": None}
     try:
-        while True:
-            run_ping(status_path=status_path)
-            time.sleep(interval)
-    except KeyboardInterrupt:
-        return
+        host, port = split_address(address)
+        family, _, _, _, sockaddr = socket.getaddrinfo(host, port, type=socket.SOCK_DGRAM)[0]
+        # Same packet the original checker used (0x02 = "unconnected ping, open connections").
+        packet = bytes([UNCONNECTED_PING_OPEN]) + struct.pack(">q", random.randint(1, 2**31)) + RAKNET_MAGIC
+        with socket.socket(family, socket.SOCK_DGRAM) as sock:
+            sock.settimeout(timeout)
+            sock.sendto(packet, sockaddr)
+            data, _ = sock.recvfrom(2048)
+    except (OSError, ValueError):
+        return result
 
-# Default server list used when none provided to run_ping
-SERVERS = [
-    {"address": "thebrokenrail.com", "name": "Official MCPI Server!", "version": "TBR Cerberus 3.0.0", "show_link": True},
-    {"address": "mcpi.izor.in", "name": None, "version": "2.5.3", "show_link": True},
-    {"address": "pbpt.dog", "name": None, "version": "Unknown", "show_link": False},
-    {"address": "beiop.net:19134", "name": "2.5.4", "version": "2.5.4", "show_link": False},
-    {"address": "beiop.net:19135", "name": "2.5.4", "version": "2.5.4", "show_link": False},
-    {"address": "beiop.net:19136", "name": "2.5.4", "version": "2.5.4", "show_link": False},
-    {"address": "unofficial-mcpi-rb.duckdns.org", "name": "Unofficial MCPI Reborn Survival (v3.0.0)", "version": "Reborn v3.0.0", "show_link": True, "website": "https://theunknownhack3r.nekoweb.org/mcpi_reborn_server/index.html"},
-]
-
-# GLOBAL COOLDOWN TRACKING
-# Prevents database duplication and excessive network traffic
-LAST_RUN_TIME = 0
-
-def get_server_status(address_str):
-    timeout = 5
-    result = {
-        "name": address_str,
-        "online": False,
-        "version": None,
-        "uptime_seconds": 0,
-        "address": address_str,
-        "players": None,
-    }
-
-    sock = None
-    try:
-        if ":" in address_str:
-            host, port = address_str.split(":", 1)
-            target = (host, int(port))
-        else:
-            target = (address_str, 19132)
-
-        magic = b"\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x124Vx"
-        packet = b"\x02" + struct.pack(">q", random.randint(5, 20)) + magic
-
-        sock = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
-        sock.settimeout(timeout)
-        sock.sendto(packet, target)
-
-        data = sock.recvfrom(2048)[0]
-
-        server_name = None
-        proto_or_version = None
-        player_count = None
-        try:
-            if len(data) > 34:
-                len_val = data[34]
-                info_bytes = data[35:35 + len_val]
-                info_str = info_bytes.decode("utf-8", errors="ignore")
-                parts = info_str.split(";")
-                if len(parts) > 2:
-                    server_name = parts[2]
-                if len(parts) > 1:
-                    proto_or_version = parts[1]
-                if len(parts) > 4:
-                    player_count = parts[4]
-        except Exception:
-            server_name = None
-            proto_or_version = None
-            player_count = None
-
-        result["online"] = True
-        result["version"] = proto_or_version if proto_or_version else result.get("version")
-        result["name"] = server_name if server_name else address_str
-        result["players"] = player_count
-
-        # Special handling for mcpi.izor.in
-        if result["address"] == "mcpi.izor.in" or (result["name"] and "mcpi.izor.in" in result["name"]):
-            match = re.search(r"(\d+)\s+connected players", result["name"] or "")
-            if match:
-                result["players"] = match.group(1)
-            result["name"] = "mcpi.izor.in"
-
-    except Exception:
-        pass
-    finally:
-        if sock:
-            try:
-                sock.close()
-            except:
-                pass
-
+    result["online"] = True
+    info = parse_pong(data)
+    if info:
+        parts = info.split(";")
+        name = parts[2].strip() if len(parts) > 2 else ""
+        if len(parts) > 4 and parts[4].strip().isdigit():
+            result["players"] = int(parts[4])
+        match = PLAYERS_RE.search(name)
+        if match:
+            result["players"] = int(match.group(1))
+            name = PLAYERS_RE.sub("", name).strip()
+        result["name"] = name or None
     return result
 
 
-def run_ping(servers=None, status_path="status.json"):
-    """
-    Runs status checks and writes results to JSON and SQLite.
-    Includes a 30-second cooldown to prevent file/DB duplication.
-    """
-    global LAST_RUN_TIME
+def _read_previous(status_path):
+    try:
+        with open(status_path, "r", encoding="utf-8") as f:
+            prev = json.load(f)
+    except (OSError, ValueError):
+        return {}
+    servers = prev.get("servers", []) if isinstance(prev, dict) else prev
+    return {s.get("address"): s for s in servers if isinstance(s, dict)}
+
+
+def _write_atomic(path, payload):
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=4)
+    os.replace(tmp, path)
+
+
+def run_ping(servers=None, status_path=None, interval=None):
+    """Ping every server in parallel, then write status.json and append to history."""
+    servers = servers if servers is not None else config.load_servers()
+    status_path = status_path or config.STATUS_PATH
+    interval = interval or config.PING_INTERVAL
     now_ms = int(time.time() * 1000)
-    
-    # Check cooldown: only run if it's been more than 30 seconds since the last run
-    if now_ms - LAST_RUN_TIME < 30000:
-        return 
+    prev = _read_previous(status_path)
 
-    LAST_RUN_TIME = now_ms
-    if servers is None:
-        servers = SERVERS
+    with ThreadPoolExecutor(max_workers=min(16, max(1, len(servers)))) as pool:
+        live = list(pool.map(lambda s: get_server_status(s["address"]), servers))
 
-    prev = {}
-    if os.path.exists(status_path):
-        try:
-            with open(status_path, "r") as f:
-                prev_list = json.load(f)
-            for e in prev_list:
-                prev[e.get("address") or e.get("name")] = e
-        except Exception:
-            prev = {}
+    results = []
+    for entry, status in zip(servers, live):
+        addr = entry["address"]
+        before = prev.get(addr, {})
+        res = {
+            "address": addr,
+            "online": status["online"],
+            "players": status["players"],
+            "version": entry.get("version") or "Unknown",
+            "show_link": bool(entry.get("show_link", False)),
+            "website": entry.get("website"),
+        }
 
-    all_data = []
-
-    for entry in servers:
-        if isinstance(entry, dict):
-            addr = entry.get("address")
-            static_version = entry.get("version")
-            static_name = entry.get("name")
-            static_website = entry.get("website")
-            show_link = entry.get("show_link", False)
+        # Name: a locked name always wins, then the live MOTD, then the last known name, then config.
+        if entry.get("lock_name") and entry.get("name"):
+            res["name"] = entry["name"]
         else:
-            addr = entry
-            static_version = None
-            static_name = None
-            static_website = None
-            show_link = False
+            res["name"] = status["name"] or before.get("name") or entry.get("name") or addr
 
-        res = get_server_status(addr)
-        res["address"] = addr
-        res["show_link"] = show_link
-
-        key = addr
-        prev_entry = prev.get(key, {})
-
-        # Persist name if offline or if current ping didn't return a name
-        if res.get("name") == addr:
-            if prev_entry.get("name") and prev_entry.get("name") != addr:
-                res["name"] = prev_entry["name"]
-            elif static_name:
-                res["name"] = static_name
-
-        if res.get("online"):
-            if prev_entry.get("online") and prev_entry.get("last_seen"):
-                delta = (now_ms - int(prev_entry.get("last_seen"))) / 1000.0
-                res["uptime_seconds"] = float(prev_entry.get("uptime_seconds", 0)) + delta
+        if status["online"]:
+            last_seen = before.get("last_seen")
+            gap_ms = now_ms - int(last_seen) if last_seen else None
+            # Keep counting only if it was online last check and the checker wasn't stopped in between.
+            if before.get("online") and gap_ms is not None and gap_ms <= interval * 1000 * 4:
+                res["uptime_seconds"] = float(before.get("uptime_seconds") or 0) + gap_ms / 1000
             else:
-                res["uptime_seconds"] = float(prev_entry.get("uptime_seconds", 0))
+                res["uptime_seconds"] = 0.0
             res["last_seen"] = now_ms
         else:
-            res["last_seen"] = prev_entry.get("last_seen")
-            res["uptime_seconds"] = float(prev_entry.get("uptime_seconds", 0))
+            res["uptime_seconds"] = 0.0
+            res["last_seen"] = before.get("last_seen")
 
-        if static_version is not None:
-            res["version"] = static_version
+        results.append(res)
 
-        if static_website is not None:
-            res["website"] = static_website
-
-        # Final cleanup for specific servers
-        if res.get("address") == "mcpi.izor.in":
-            res["name"] = "mcpi.izor.in"
-
-        all_data.append(res)
-
-    # Log to real SQLite database via db.py
     try:
-        # use db module default path (absolute inside project) to avoid multiple DB files
-        db.log_history(all_data, now_ms)
-    except Exception:
-        pass
+        db.log_history(results, now_ms)
+        db.prune_before(now_ms - config.HISTORY_DAYS * 86400 * 1000)
+    except Exception as exc:  # history is nice-to-have; never stop the status file being written
+        print(f"[ping] could not write history: {exc}")
 
-    # Update status.json atomicly
-    try:
-        tmp_path = status_path + ".tmp"
-        with open(tmp_path, "w") as f:
-            json.dump(all_data, f, indent=4)
-        os.replace(tmp_path, status_path)
-    except Exception:
+    _write_atomic(status_path, {"checked_at": now_ms, "interval": interval, "servers": results})
+    return results
+
+
+def run_loop(interval=None, status_path=None, stop_event=None):
+    """Ping forever, every `interval` seconds, until Ctrl+C or `stop_event` is set."""
+    interval = interval or config.PING_INTERVAL
+    db.init_db()
+    while True:
+        started = time.monotonic()
         try:
-            with open(status_path, "w") as f:
-                json.dump(all_data, f, indent=4)
-        except:
-            pass
+            run_ping(status_path=status_path, interval=interval)
+        except Exception as exc:
+            print(f"[ping] check failed: {exc}")
+        wait = max(1.0, interval - (time.monotonic() - started))
+        if stop_event is not None:
+            if stop_event.wait(wait):
+                return
+        else:
+            time.sleep(wait)
+
 
 if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="MCPI status pinger")
-    parser.add_argument("--loop", action="store_true", help="Run continuously on an interval")
-    parser.add_argument("--interval", type=float, default=15.0, help="Seconds between runs when --loop is used")
-    parser.add_argument("--status-path", default="status.json", help="Path to write status JSON to")
+    parser = argparse.ArgumentParser(description="MCPI server status checker")
+    parser.add_argument("--loop", action="store_true", help="keep checking on an interval")
+    parser.add_argument("--interval", type=float, default=config.PING_INTERVAL,
+                        help=f"seconds between checks (default {config.PING_INTERVAL:g})")
+    parser.add_argument("--status-path", default=config.STATUS_PATH, help="where to write status JSON")
     args = parser.parse_args()
 
     if args.loop:
-        _run_loop(status_path=args.status_path, interval=args.interval)
+        try:
+            run_loop(interval=args.interval, status_path=args.status_path)
+        except KeyboardInterrupt:
+            pass
     else:
-        run_ping(status_path=args.status_path)
+        db.init_db()
+        for s in run_ping(status_path=args.status_path, interval=args.interval):
+            print(f"{'UP  ' if s['online'] else 'DOWN'}  {s['address']:<35} {s['name']}")

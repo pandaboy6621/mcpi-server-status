@@ -1,0 +1,17 @@
+services:
+  mcpi-status:
+    build: .
+    image: mcpi-server-status
+    container_name: mcpi-server-status
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+    volumes:
+      - mcpi-data:/data                            # status.json + history database
+      - ./servers.json:/app/servers.json:ro        # edit this to change the server list
+    environment:
+      MCPI_PING_INTERVAL: "30"
+      MCPI_HISTORY_DAYS: "7"
+
+volumes:
+  mcpi-data:

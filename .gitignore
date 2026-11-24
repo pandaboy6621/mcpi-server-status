@@ -1,0 +1,10 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+.vscode/
+.DS_Store
+data/
+status.json
+status.db
+*.tmp
