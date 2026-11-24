@@ -20,6 +20,9 @@ BUCKET_MS = 15 * 60 * 1000
 
 app = Flask(__name__)
 
+# When this process started its own checker (ms), or None if it was run with --no-checker.
+checker_started_at = None
+
 
 def _read_status():
     try:
@@ -44,6 +47,7 @@ def status_json():
     # Online first, then keep the order from servers.json.
     data["servers"] = sorted(data.get("servers", []), key=lambda s: not s.get("online"))
     data["server_time"] = int(time.time() * 1000)
+    data["checker_started_at"] = checker_started_at
     return jsonify(data)
 
 
@@ -78,6 +82,8 @@ def healthz():
 
 
 def start_checker(interval):
+    global checker_started_at
+    checker_started_at = int(time.time() * 1000)
     stop = threading.Event()
     thread = threading.Thread(
         target=ping.run_loop, kwargs={"interval": interval, "stop_event": stop},

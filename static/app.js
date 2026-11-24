@@ -109,6 +109,13 @@
         toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
     }
 
+    // Poll quickly while waiting for the first check after startup.
+    let soonTimer;
+    function scheduleSoon() {
+        clearTimeout(soonTimer);
+        soonTimer = setTimeout(refresh, 2000);
+    }
+
     let inFlight = false;
     async function refresh() {
         if (inFlight) return;
@@ -144,11 +151,19 @@
                 <span class="chip"><b>${players}</b> player${players === 1 ? '' : 's'}</span>` : '';
 
             const checked = status.checked_at;
+            const started = status.checker_started_at;
             const staleAfter = (status.interval || 30) * 4 * 1000;
-            if (!checked) {
-                setBanner('Waiting for the first server check…');
+            const firstCheckPending = !checked || (started && checked < started);
+            if (firstCheckPending && (!started || now - started < staleAfter)) {
+                // App just started: the results on screen (if any) are from the previous run.
+                setBanner(checked
+                    ? `Checking servers… Showing results from ${ago(checked, now)} until the first check finishes.`
+                    : 'Checking servers… Results will appear in a few seconds.');
+                scheduleSoon();
             } else if (now - checked > staleAfter) {
-                setBanner(`The status checker hasn't run since ${ago(checked, now)}, so this data may be out of date. Start it with "python app.py" (or "python ping.py --loop").`);
+                setBanner(started
+                    ? `The status checker hasn't finished a check since ${ago(checked, now)}. Look at the terminal running app.py for errors.`
+                    : `The status checker hasn't run since ${ago(checked, now)}, so this data may be out of date. Start it with "python app.py" (or "python ping.py --loop").`);
             } else {
                 setBanner('');
             }
