@@ -18,12 +18,18 @@ docker compose up -d
 
 Open <http://localhost:5555>. Status history is kept in the `mcpi-data` volume. After editing `servers.json`, run `docker compose restart`.
 
+Compose uses the prebuilt image from GitHub Container Registry, which is built for `amd64` and `arm64` (so it runs on a Raspberry Pi). Run `docker compose up -d --build` to build it from your local source instead.
+
 Without Compose:
 
 ```bash
-docker build -t mcpi-server-status .
-docker run -d -p 5555:5555 -v mcpi-data:/data --name mcpi-server-status mcpi-server-status
+docker run -d -p 5555:5555 -v mcpi-data:/data --restart unless-stopped \
+  --name mcpi-server-status ghcr.io/pandaboy6621/mcpi-server-status:latest
 ```
+
+To use your own server list, add `-v "$PWD/servers.json:/app/servers.json:ro"`.
+
+Image tags: `latest` (newest `main`), `1.0.0`-style release versions, and `sha-<commit>`.
 
 ### Option 2: Run script (macOS / Linux / Windows)
 
