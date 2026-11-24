@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>MCPI Server Status</title>
+    <meta name="description" content="Live status of Minecraft: Pi Edition servers">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2334d399'/%3E%3Crect x='3' y='3' width='4' height='4' fill='%23052e1c'/%3E%3Crect x='9' y='3' width='4' height='4' fill='%23052e1c'/%3E%3Crect x='6' y='7' width='4' height='3' fill='%23052e1c'/%3E%3Crect x='4' y='9' width='2' height='4' fill='%23052e1c'/%3E%3Crect x='10' y='9' width='2' height='4' fill='%23052e1c'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="wrap">
+        <header class="top">
+            <div>
+                <h1>MCPI Server Status</h1>
+                <p class="tagline">Live status of Minecraft: Pi Edition servers</p>
+            </div>
+            <div id="summary" class="summary" aria-live="polite"></div>
+        </header>
+
+        <div id="banner" class="banner" role="status" hidden></div>
+
+        <main id="main" class="grid" aria-busy="true">
+            <div class="card skeleton"></div>
+            <div class="card skeleton"></div>
+            <div class="card skeleton"></div>
+            <div class="card skeleton"></div>
+        </main>
+
+        <footer class="foot">
+            <span id="last-updated">Loading…</span>
+            <button id="refresh-btn" class="icon-btn" type="button" title="Refresh now" aria-label="Refresh now">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.65 6.35A7.96 7.96 0 0 0 12 4a8 8 0 1 0 7.73 10h-2.08A6 6 0 1 1 12 6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>
+            <span class="foot-note">Heartbeat bars are 15-minute slots over the last 24 hours.</span>
+        </footer>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

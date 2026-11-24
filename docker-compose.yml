@@ -1,0 +1,17 @@
+services:
+  mcpi-status:
+    image: ghcr.io/pandaboy6621/mcpi-server-status:latest   # prebuilt for amd64 + arm64 (Raspberry Pi)
+    build: .                                                 # `docker compose up --build` builds from source instead
+    container_name: mcpi-server-status
+    restart: unless-stopped
+    ports:
+      - "5555:5555"
+    volumes:
+      - mcpi-data:/data                            # status.json + history database
+      - ./servers.json:/app/servers.json:ro        # edit this to change the server list
+    environment:
+      MCPI_PING_INTERVAL: "30"
+      MCPI_HISTORY_DAYS: "7"
+
+volumes:
+  mcpi-data:
